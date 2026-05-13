@@ -10,7 +10,7 @@ auth_token = os.getenv("TWILIO_AUTH_TOKEN")
 ngrok_url = os.getenv("NGROK_URL")
 
         
-MY_PHONE_NUMBER = "+917984608871"
+PHONE_NUMBER = "ANY_PHONE_NO"
 
 client = Client(account_sid, auth_token)
 
