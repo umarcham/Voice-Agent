@@ -11,7 +11,7 @@ import time
          
                                      
 
-DEEPGRAM_API_KEY = "a11b0ae9052d95410985f45af7a6b184addf83d1"
+DEEPGRAM_API_KEY = "DEEPGRAM_API_KEY "
 
                                      
                 
