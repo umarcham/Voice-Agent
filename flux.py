@@ -42,7 +42,7 @@ from deepgram import (
     LiveOptions,
 )
 
-DEEPGRAM_API_KEY = "c106445dc82777d33e4899f29f5bf21cad38f764"
+DEEPGRAM_API_KEY = "DEEPGRAM_API_KEY"
 
 async def run_agent():
     config = DeepgramClientOptions(options={"keepalive": "true"})
