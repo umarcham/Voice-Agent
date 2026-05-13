@@ -10,7 +10,7 @@ from google import genai
                                                                              
                
                                                                              
-API_KEY = "AIzaSyCPSUOAWzEQJ_eZec5zuKq3ZDacUPZFuY4"
+API_KEY = "GEMINI_API_KEY"
 MODEL = "gemini-3.1-flash-live-preview"                                      
 
                  
