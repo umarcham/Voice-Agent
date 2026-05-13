@@ -7,21 +7,21 @@ import queue
 import threading
 from google import genai
 
-# ---------------------------------------------------------------------------
-# CONFIGURATION
-# ---------------------------------------------------------------------------
+                                                                             
+               
+                                                                             
 API_KEY = "AIzaSyCPSUOAWzEQJ_eZec5zuKq3ZDacUPZFuY4"
-MODEL = "gemini-3.1-flash-live-preview" # The ONLY Bidi-supported model found
+MODEL = "gemini-3.1-flash-live-preview"                                      
 
-# Audio constants
+                 
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
 CHUNK = 512 
 
-# ---------------------------------------------------------------------------
-# AUDIO ENGINE (No-Lag version)
-# ---------------------------------------------------------------------------
+                                                                             
+                               
+                                                                             
 mic_queue = queue.Queue(maxsize=10)
 speaker_queue = queue.Queue() 
 
@@ -54,13 +54,13 @@ class AudioEngine:
             except:
                 time.sleep(0.01)
 
-# ---------------------------------------------------------------------------
-# LIVE AGENT
-# ---------------------------------------------------------------------------
+                                                                             
+            
+                                                                             
 
 async def main():
     print(f"\n[CONNECTING TO {MODEL}...]")
-    # Remove api_version override to let SDK use the correct default
+                                                                    
     client = genai.Client(api_key=API_KEY)
     engine = AudioEngine()
     
@@ -74,7 +74,7 @@ async def main():
 
     while True:
         try:
-            # Let the SDK handle the connection version automatically
+                                                                     
             async with client.aio.live.connect(model=MODEL, config=config) as session:
                 print("\n>>> AGENT ONLINE")
                 print(">>> Speak now. Response will be sub-second.")
@@ -94,7 +94,7 @@ async def main():
                         if is_receiving:
                             if amplitude < 4000: continue
                             else:
-                                # Barge-in
+                                          
                                 while not speaker_queue.empty():
                                     try: speaker_queue.get_nowait()
                                     except: break

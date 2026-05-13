@@ -4,18 +4,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Credentials
+             
 account_sid = os.getenv("TWILIO_ACCOUNT_SID")
 auth_token = os.getenv("TWILIO_AUTH_TOKEN")
 ngrok_url = os.getenv("NGROK_URL")
 
-# Target
+        
 MY_PHONE_NUMBER = "+917984608871"
 
 client = Client(account_sid, auth_token)
 
 def make_outbound_call():
-    # 1. Get your Twilio number automatically
+                                             
     incoming_phone_numbers = client.incoming_phone_numbers.list(limit=1)
     if not incoming_phone_numbers:
         print("No Twilio numbers found.")
@@ -26,7 +26,7 @@ def make_outbound_call():
 
     print(f"Initiating call from {twilio_number} to {MY_PHONE_NUMBER}...")
 
-    # 2. Trigger the call
+                         
     call = client.calls.create(
         to=MY_PHONE_NUMBER,
         from_=twilio_number,

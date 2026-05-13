@@ -41,7 +41,7 @@ async def test_logic():
             if chunk.text:
                 sentence_buffer += chunk.text
                 
-                # Smart sentence splitting (matches phone_agent.py)
+                                                                   
                 sentences = re.findall(r'[^.!?]+[.!?](?=\s|$)', sentence_buffer)
                 for sentence in sentences:
                     if re.search(r'\b(e\.g\.|i\.e\.|etc\.)\s*$', sentence, re.I):

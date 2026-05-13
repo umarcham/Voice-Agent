@@ -1,4 +1,4 @@
-# llm.py
+        
 
 import time
 import json
@@ -14,18 +14,18 @@ URL = (
     "gemini-2.5-flash-lite:streamGenerateContent?alt=sse"
 )
 
-# Force IPv4 to fix macOS DNS stalls (common cause of 5-8s latency)
+                                                                   
 class IPv4Transport(httpx.AsyncHTTPTransport):
     async def handle_async_request(self, request):
         if not hasattr(self, "_pool"):
             from httpcore import AsyncConnectionPool
-            # We override the connection pool to force IPv4
+                                                           
             self._pool = AsyncConnectionPool(local_address="0.0.0.0", http2=True)
         return await super().handle_async_request(request)
 
-# Optimized HTTP/2 client with forced IPv4 for Mac stability
+                                                            
 try:
-    # Use a simpler way to prefer IPv4 if transport override is too complex
+                                                                           
     limits = httpx.Limits(max_keepalive_connections=5, max_connections=10)
     http_client = httpx.AsyncClient(http2=True, timeout=10.0, limits=limits)
 except Exception:
@@ -37,12 +37,12 @@ async def stream_gemini(transcript):
     print("ENTERED GEMINI")
     global conversation_history
 
-    # Raw transcript to history
+                               
     conversation_history.append(transcript)
     if len(conversation_history) > 2:
         conversation_history = conversation_history[-2:]
 
-    # Ultra-simple prompt (Raw text is often faster for Lite models)
+                                                                    
     full_prompt = "\n".join(conversation_history)
 
     payload = {
@@ -102,13 +102,13 @@ async def stream_gemini(transcript):
                         full_response += text
                         sentence_buffer += text
 
-                        # Immediate sentence extraction
+                                                       
                         sentences = re.findall(r'[^.!?]+[.!?]', sentence_buffer)
                         for sentence in sentences:
                             cleaned = sentence.strip()
                             if cleaned:
                                 print(f"TTS CHUNK: {cleaned}")
-                                # Clean Markdown before speaking
+                                                                
                                 clean_speech = re.sub(r"[\*\#\_]", "", cleaned)
                                 speak_text(clean_speech)
                             sentence_buffer = sentence_buffer.replace(sentence, "", 1)

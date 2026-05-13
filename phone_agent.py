@@ -20,15 +20,15 @@ from deepgram import (
 def deep_clean_speech(text):
     """Remove all markdown, code blocks, and special characters for clean TTS."""
     if not text: return ""
-    # Remove code blocks and backticks
+                                      
     text = re.sub(r"```[\s\S]*?```", "", text)
     text = re.sub(r"`", "", text)
-    # Remove bold/italic stars and hashtags
+                                           
     text = re.sub(r"[\*\#\_]", "", text)
-    # Remove bullet points and numbered lists
+                                             
     text = re.sub(r"^\s*[\-\+\•]\s+", "", text, flags=re.M)
     text = re.sub(r"^\s*\d+\.\s+", "", text, flags=re.M)
-    # Final cleanup
+                   
     text = text.replace("\n", " ").strip()
     return re.sub(r"\s+", " ", text)
 from dotenv import load_dotenv
@@ -43,7 +43,7 @@ import google.generativeai as genai
 
 load_dotenv()
 
-# Configuration
+               
 DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 NGROK_URL = os.getenv("NGROK_URL")
@@ -56,7 +56,7 @@ model = genai.GenerativeModel(
 
 app = FastAPI()
 
-# Force IPv4 to fix macOS DNS stalls
+                                    
 class IPv4Transport(httpx.AsyncHTTPTransport):
     async def handle_async_request(self, request):
         if not hasattr(self, "_pool"):
@@ -64,18 +64,18 @@ class IPv4Transport(httpx.AsyncHTTPTransport):
             self._pool = AsyncConnectionPool(local_address="0.0.0.0", http2=True)
         return await super().handle_async_request(request)
 
-# Global HTTP clients for Gemini and TTS
+                                        
 try:
     transport = IPv4Transport(http2=False)
     http_client = httpx.AsyncClient(transport=transport, timeout=10.0)
-    tts_client = httpx.AsyncClient(timeout=5.0) # Global client for TTS speed
+    tts_client = httpx.AsyncClient(timeout=5.0)                              
 except Exception:
     http_client = httpx.AsyncClient(http2=False, timeout=10.0)
     tts_client = httpx.AsyncClient(timeout=5.0)
 
-# ---------------------------------------------------------------------------
-# TWILIO WEBHOOKS
-# ---------------------------------------------------------------------------
+                                                                             
+                 
+                                                                             
 
 @app.post("/voice")
 async def voice(request: Request):
@@ -86,9 +86,9 @@ async def voice(request: Request):
     response.append(connect)
     return HTMLResponse(content=str(response), media_type="application/xml")
 
-# ---------------------------------------------------------------------------
-# MEDIA STREAM HANDLER
-# ---------------------------------------------------------------------------
+                                                                             
+                      
+                                                                             
 
 @app.websocket("/media-stream")
 async def handle_media_stream(websocket: WebSocket):
@@ -96,11 +96,11 @@ async def handle_media_stream(websocket: WebSocket):
     await websocket.accept()
     print("\n>>> PHONE CALL CONNECTED")
 
-    # Initialize Deepgram
+                         
     dg_client = DeepgramClient(DEEPGRAM_API_KEY)
     dg_connection = dg_client.listen.asyncwebsocket.v("1")
 
-    # Call-Specific Conversation History
+                                        
     history = []
 
     stream_sid = None
@@ -112,17 +112,17 @@ async def handle_media_stream(websocket: WebSocket):
         transcript = result.channel.alternatives[0].transcript.strip()
         if not transcript: return
 
-        # 1. BARGE-IN: If user speaks while agent is talking, stop playback
+                                                                           
         if is_agent_speaking:
             print(f"\n[BARGE-IN]: {transcript}")
             is_agent_speaking = False
             if llm_task: llm_task.cancel()
-            # Send 'clear' to Twilio if needed, but stopping the send loop is usually enough
+                                                                                            
             return
 
         print(f"[USER]: {transcript}")
         
-        # 2. TRIGGER LLM
+                        
         if llm_task: llm_task.cancel()
         llm_task = asyncio.create_task(process_llm_and_tts(transcript))
 
@@ -131,7 +131,7 @@ async def handle_media_stream(websocket: WebSocket):
         try:
             print(f">>> TRIGGERING GEMINI FOR: {text}")
             
-            # Use chat with history (Keep last 10 turns)
+                                                        
             chat = model.start_chat(history=history[-10:])
             
             full_response = ""
@@ -148,7 +148,7 @@ async def handle_media_stream(websocket: WebSocket):
                     full_response += chunk.text
                     sentence_buffer += chunk.text
                     
-                    # 1. SMART SENTENCE SPLITTING
+                                                 
                     sentences = re.findall(r'[^.!?]+[.!?](?=\s|$)', sentence_buffer)
                     for sentence in sentences:
                         if re.search(r'\b(e\.g\.|i\.e\.|etc\.)\s*$', sentence, re.I):
@@ -166,7 +166,7 @@ async def handle_media_stream(websocket: WebSocket):
                 if cleaned_final:
                     asyncio.create_task(speak_to_phone(cleaned_final))
             
-            # Update history
+                            
             history.append({"role": "user", "parts": [text]})
             history.append({"role": "model", "parts": [full_response]})
                 
@@ -229,10 +229,10 @@ async def handle_media_stream(websocket: WebSocket):
                 print(f"Stream Started: {stream_sid}")
 
             elif packet['event'] == 'media':
-                # Decode Twilio's 8kHz Mulaw to 16kHz PCM for Deepgram
+                                                                      
                 mulaw_data = base64.b64decode(packet['media']['payload'])
                 pcm_data = audioop.ulaw2lin(mulaw_data, 2)
-                # Resample 8kHz to 16kHz
+                                        
                 pcm_16k, _ = audioop.ratecv(pcm_data, 2, 1, 8000, 16000, None)
                 
                 await dg_connection.send(pcm_16k)

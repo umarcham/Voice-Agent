@@ -7,33 +7,33 @@ import queue
 import threading
 from google import genai
 
-# ---------------------------------------------------------------------------
-# CONFIGURATION
-# ---------------------------------------------------------------------------
+                                                                             
+               
+                                                                             
 API_KEY = "AIzaSyCPSUOAWzEQJ_eZec5zuKq3ZDacUPZFuY4"
 MODEL = "gemini-3.1-flash-live-preview"
 
-# Audio constants
+                 
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
 CHUNK = 1024 
 
-# ---------------------------------------------------------------------------
-# AUDIO QUEUES
-# ---------------------------------------------------------------------------
+                                                                             
+              
+                                                                             
 mic_queue = asyncio.Queue()
 speaker_queue = queue.Queue() 
 
-# ---------------------------------------------------------------------------
-# LIVE AGENT
-# ---------------------------------------------------------------------------
+                                                                             
+            
+                                                                             
 
 async def main():
     client = genai.Client(api_key=API_KEY, http_options={'api_version': 'v1alpha'})
     p = pyaudio.PyAudio()
     
-    # Streams
+             
     mic_stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
     speaker_stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, output=True, frames_per_buffer=CHUNK)
 
@@ -80,7 +80,7 @@ async def main():
                         audio_data = np.frombuffer(data, dtype=np.int16)
                         amplitude = np.abs(audio_data).mean()
 
-                        if amplitude > 300: # USER IS SPEAKING
+                        if amplitude > 300:                   
                             if not is_speaking_now:
                                 print("[USER]", end=" ", flush=True)
                                 is_speaking_now = True
@@ -90,18 +90,18 @@ async def main():
                             
                             await session.send_realtime_input(audio={"mime_type": "audio/pcm", "data": data})
                             last_send_time = time.time()
-                        else: # USER IS SILENT
+                        else:                 
                             if is_speaking_now:
                                 silence_counter += 1
-                                if silence_counter > 10: # ~0.6s of silence
+                                if silence_counter > 10:                   
                                     is_speaking_now = False
                                     print("[FINISH]", end=" ", flush=True)
-                                    # Force turn flush
+                                                      
                                     await session.send_realtime_input(text="")
                                     last_send_time = time.time()
                             
-                            # Do NOT send audio chunks during silence
-                            # Just update last_send_time to allow heartbeat to work
+                                                                     
+                                                                                   
                             pass
 
                 async def receive_responses():
