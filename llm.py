@@ -7,7 +7,7 @@ import httpx
 import socket
 from tts import speak_text
 
-GEMINI_API_KEY = "AIzaSyDAilMpSnlSoFfVeVDjkWWru3DfEDiIjKQ"
+GEMINI_API_KEY = "GEMINI_API_KEY"
 
 URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/"
